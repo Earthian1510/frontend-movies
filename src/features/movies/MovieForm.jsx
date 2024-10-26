@@ -1,11 +1,15 @@
 import React, { useState, useEffect }from 'react'
 import Header from '../../components/Header'
 import { useDispatch } from 'react-redux'
-import { fetchMovies, addMovieAsync } from './moviesSlice'
+import { addMovieAsync, updateMovieAsync } from './moviesSlice'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const MovieForm = () => {
  
+  const location = useLocation()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
   const [movieData, setMovieData] = useState({
     title: '',
     releaseYear: '',
@@ -13,6 +17,20 @@ const MovieForm = () => {
     director: '',
     plot: ''
   })
+
+  const movieToEdit = location.state 
+
+  useEffect(() => {
+    if(movieToEdit) {
+        setMovieData({
+            title: movieToEdit.title,
+            releaseYear: movieToEdit.releaseYear,
+            rating: movieToEdit.rating,
+            director: movieToEdit.director,
+            plot: movieToEdit.plot
+        })
+    }
+  }, [movieToEdit])
   
   const handleMovieData = (e) => {
     const {name, value} = e.target 
@@ -24,10 +42,13 @@ const MovieForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const newMovie = movieData
-    if(newMovie){
-        dispatch(addMovieAsync(newMovie))
+    if(movieToEdit) {
+        dispatch(updateMovieAsync({...movieData, _id: movieToEdit._id}))
     }
+    else{
+        dispatch(addMovieAsync(movieData))
+    }
+    navigate('/movies')
 
     setMovieData({
         title: '',
@@ -36,7 +57,6 @@ const MovieForm = () => {
         director: '',
         plot: ''
     })
-
   }
   
 
@@ -44,7 +64,7 @@ const MovieForm = () => {
     <>
     <Header />
     <div className='container my-3'>
-        <h1 className='mb-2'>Add Movie</h1>
+        <h1 className='mb-2'>{movieToEdit ? 'Edit Movie': 'Add Movie'}</h1>
         <form onSubmit={handleSubmit}>
             <div>
                 <input 
@@ -100,7 +120,7 @@ const MovieForm = () => {
                 ></textarea>
             </div>
             <br />
-            <button className="btn btn-success" type='submit'>Add </button>
+            <button className={`btn ${movieToEdit ? "btn-warning": "btn-success"}`} type='submit'>{movieToEdit ? 'Edit' :'Add'}</button>
         </form>
     </div>
     </>
