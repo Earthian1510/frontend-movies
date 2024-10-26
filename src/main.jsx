@@ -20,6 +20,10 @@ const router = createBrowserRouter([
     path: '/movies/addMovie',
     element: <MovieForm />
   },
+  {
+    path: '/movies/addMovie/:id',
+    element: <MovieForm />
+  },
 ])
 
 createRoot(document.getElementById('root')).render(
